@@ -599,7 +599,8 @@ class Base64Encoder {
                 voiceStatus.textContent = '🔴 Идет диалог... Нажмите еще раз для остановки';
             } catch (error) {
                 console.error('Error starting recording:', error);
-                voiceStatus.textContent = 'Ошибка доступа к микрофону';
+                voiceStatus.textContent = `Ошибка: ${error.name}: ${error.message}`;
+                alert(`Ошибка запуска микрофона: ${error.name}: ${error.message}`);
             }
         }
         function stopRecording() {

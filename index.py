@@ -44,7 +44,7 @@ class ChatResponse(BaseModel):
 
 api_key = os.environ['API_KEY']
 project = os.environ['PROJECT']
-base_url='https://rest-assistant.api.cloud.yandex.net/v1'
+base_url='https://ai.api.cloud.yandex.net/v1'
 
 agent = TextAgent(api_key=api_key, base_url=base_url, project=project)
 
