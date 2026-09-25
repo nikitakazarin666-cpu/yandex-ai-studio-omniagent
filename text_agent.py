@@ -1,5 +1,8 @@
 import openai
 
+from config_loader import load_agent_config
+
+
 YANDEX_CLOUD_MODEL = "yandexgpt"
 
 
@@ -7,6 +10,9 @@ class TextAgent:
 
     def __init__(self, api_key: str, base_url: str, project: str):
         self.previous_id = None
+
+        self.config = load_agent_config()
+        self.text_config = self.config.get("text", {})
 
         self.client = openai.OpenAI(
             api_key=api_key,
@@ -18,29 +24,28 @@ class TextAgent:
 
     def send(self, user_input: str) -> str:
 
+        tools = []
+
+        if self.text_config.get("web_search", False):
+            domains = self.text_config.get("allowed_domains", [])
+
+            web_search_tool = {
+                "type": "web_search"
+            }
+
+            if domains:
+                web_search_tool["filters"] = {
+                    "allowed_domains": domains
+                }
+
+            tools.append(web_search_tool)
+
         params = {
             "model": self.model,
-            "instructions": (
-                "Ты ассистент по подбору товаров и ответам на вопросы "
-                "интернет-магазина Яндекс Маркет. "
-                "Твоя задача — помогать пользователям находить товары "
-                "и отвечать на их вопросы. "
-                "Если требуется поиск в интернете, искать надо только "
-                "на сайте market.yandex.ru. "
-                "Если найден подходящий товар, предоставь ссылку на сайт. "
-                "Отвечай четко и по делу, избегай лишних слов. "
-                "Если не знаешь точного ответа, честно скажи об этом."
+            "instructions": self.text_config.get(
+                "system_prompt",
+                "Ты полезный AI-ассистент."
             ),
-            "tools": [
-                {
-                    "type": "web_search",
-                    "filters": {
-                        "allowed_domains": [
-                            "market.yandex.ru"
-                        ]
-                    }
-                }
-            ],
             "input": [
                 {
                     "role": "user",
@@ -48,6 +53,9 @@ class TextAgent:
                 }
             ]
         }
+
+        if tools:
+            params["tools"] = tools
 
         if self.previous_id:
             params["previous_response_id"] = self.previous_id
