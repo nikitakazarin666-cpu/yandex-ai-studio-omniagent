@@ -38,6 +38,7 @@ def log(*args):
 class ChatMessage(BaseModel):
     message: str
     capability_id: Optional[str] = None
+    session_id: Optional[str] = None
 
 class ChatResponse(BaseModel):
     response: str
@@ -142,7 +143,8 @@ async def chat_endpoint(message: ChatMessage):
         # bot_response = generate_bot_response(message.message)
         bot_response = agent.send(
             message.message,
-            capability_id=message.capability_id
+            capability_id=message.capability_id,
+            session_id=message.session_id
         )
         
         

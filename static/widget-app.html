@@ -386,6 +386,11 @@ let websocket = null;
 let isRecording = false;
 let activeCapabilityId = null;
 
+const sessionId =
+    window.crypto && crypto.randomUUID
+        ? crypto.randomUUID()
+        : 'session-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+
 let audioContext = null;
 let workletNode = null;
 let mediaStream = null;
@@ -538,7 +543,8 @@ async function sendText() {
             },
             body: JSON.stringify({
                 message: text,
-                capability_id: activeCapabilityId
+                capability_id: activeCapabilityId,
+                session_id: sessionId
             })
         });
 
