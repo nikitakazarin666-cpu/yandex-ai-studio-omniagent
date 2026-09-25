@@ -1,0 +1,15 @@
+[Unit]
+Description=OmniAgent FastAPI Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/omniagent
+EnvironmentFile=/etc/omniagent.env
+ExecStart=/opt/omniagent/.venv/bin/python /opt/omniagent/index.py
+Restart=always
+RestartSec=3
+User=root
+
+[Install]
+WantedBy=multi-user.target

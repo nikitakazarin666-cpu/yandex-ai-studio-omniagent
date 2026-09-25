@@ -3,3 +3,6 @@ __pycache__/
 incoming_audio.pcm
 vo_agent.py.backup
 static/widget.js.backup
+
+.env
+*.env.local
