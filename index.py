@@ -70,6 +70,7 @@ async def widget_config():
     config = load_agent_config()
     brand = config.get("brand", {})
     voice = config.get("voice", {})
+    launcher = config.get("launcher", {})
 
     return {
         "name": config.get("name", "AI-ассистент"),
@@ -85,7 +86,26 @@ async def widget_config():
         "voice_enabled": voice.get(
             "enabled",
             True
-        )
+        ),
+        "launcher": {
+            "icon": launcher.get("icon", "✦"),
+            "label": launcher.get(
+                "label",
+                "Задать вопрос AI"
+            ),
+            "show_label": launcher.get(
+                "show_label",
+                True
+            ),
+            "position": launcher.get(
+                "position",
+                "right"
+            ),
+            "size": launcher.get(
+                "size",
+                60
+            )
+        }
     }
 
 
