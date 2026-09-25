@@ -48,6 +48,18 @@ ENV
 
 chmod 600 "$ENV_FILE"
 
+echo "=== Creating agent configuration ==="
+
+CONFIG_FILE="/etc/omniagent.config.json"
+
+if [ ! -f "$CONFIG_FILE" ]; then
+    cp "$APP_DIR/config/agent.example.json" "$CONFIG_FILE"
+    chmod 600 "$CONFIG_FILE"
+    echo "Created $CONFIG_FILE"
+else
+    echo "$CONFIG_FILE already exists - keeping current configuration"
+fi
+
 unset API_KEY
 
 echo "=== Configuring nginx ==="
