@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AI-ассистент</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font-family: Inter, Arial, sans-serif;
+    background: #fff;
+    color: #172033;
+}
+
+body {
+    overflow: hidden;
+}
+
+.app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+
+.header {
+    height: 72px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e9edf5;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.agent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2161f5;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.name {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.status {
+    margin-top: 3px;
+    font-size: 12px;
+    color: #6f7b90;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #23b26d;
+}
+
+.close {
+    border: 0;
+    background: #f3f5f9;
+    color: #5f6878;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    background: #f7f9fc;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.message.bot {
+    justify-content: flex-start;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.bubble {
+    max-width: 84%;
+    padding: 11px 14px;
+    border-radius: 17px;
+    font-size: 14px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.bot .bubble {
+    background: #fff;
+    border: 1px solid #e6eaf1;
+    border-bottom-left-radius: 5px;
+}
+
+.user .bubble {
+    background: #2161f5;
+    color: #fff;
+    border-bottom-right-radius: 5px;
+}
+
+.typing {
+    display: none;
+    font-size: 13px;
+    color: #778196;
+    padding: 0 18px 9px;
+    background: #f7f9fc;
+}
+
+.voice-state {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    font-size: 13px;
+    background: #eef4ff;
+    color: #2161f5;
+    flex-shrink: 0;
+}
+
+.voice-state.active {
+    display: flex;
+}
+
+.pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f04444;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .4; transform: scale(.75); }
+}
+
+.composer {
+    min-height: 76px;
+    border-top: 1px solid #e9edf5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #f5f7fa;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 0 13px;
+}
+
+.input-wrap:focus-within {
+    border-color: #2161f5;
+    background: #fff;
+}
+
+input {
+    width: 100%;
+    height: 46px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 14px;
+    color: #172033;
+}
+
+.action {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    border: 0;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+.mic {
+    background: #eef3ff;
+    color: #2161f5;
+}
+
+.mic.recording {
+    background: #ffecec;
+    color: #e23939;
+}
+
+.send {
+    background: #2161f5;
+    color: #fff;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+@media (max-width: 600px) {
+    .header {
+        height: 66px;
+    }
+
+    .messages {
+        padding: 16px 12px;
+    }
+
+    .bubble {
+        max-width: 88%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header class="header">
+        <div class="agent">
+            <div class="avatar">AI</div>
+
+            <div>
+                <div class="name">AI-ассистент</div>
+                <div class="status">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Подключение...</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="close" id="closeBtn">×</button>
+    </header>
+
+    <main class="messages" id="messages">
+        <div class="message bot">
+            <div class="bubble">
+                Здравствуйте! Я AI-ассистент. Чем могу помочь?
+            </div>
+        </div>
+    </main>
+
+    <div class="typing" id="typing">
+        Ассистент печатает...
+    </div>
+
+    <div class="voice-state" id="voiceState">
+        <span class="pulse"></span>
+        <span>Слушаю вас...</span>
+    </div>
+
+    <footer class="composer">
+
+        <button class="action mic" id="micBtn" title="Голос">
+            🎙
+        </button>
+
+        <div class="input-wrap">
+            <input
+                id="messageInput"
+                placeholder="Напишите сообщение..."
+                autocomplete="off"
+            >
+        </div>
+
+        <button class="action send" id="sendBtn" title="Отправить">
+            ➜
+        </button>
+
+    </footer>
+
+</div>
+
+<script>
+const messages = document.getElementById('messages');
+const input = document.getElementById('messageInput');
+const sendBtn = document.getElementById('sendBtn');
+const micBtn = document.getElementById('micBtn');
+const statusText = document.getElementById('statusText');
+const typing = document.getElementById('typing');
+const voiceState = document.getElementById('voiceState');
+
+let websocket = null;
+let isRecording = false;
+
+let audioContext = null;
+let workletNode = null;
+let mediaStream = null;
+let mediaSource = null;
+let silentGain = null;
+
+let nextPlayTime = 0;
+const activeAudioSources = new Set();
+
+
+function addMessage(text, sender) {
+    if (!text) return;
+
+    const row = document.createElement('div');
+    row.className = `message ${sender}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    row.appendChild(bubble);
+    messages.appendChild(row);
+
+    messages.scrollTop = messages.scrollHeight;
+}
+
+
+async function checkHealth() {
+    try {
+        const response = await fetch('/health');
+
+        if (response.ok) {
+            statusText.textContent = 'Онлайн';
+        } else {
+            statusText.textContent = 'Ошибка соединения';
+        }
+    } catch {
+        statusText.textContent = 'Нет соединения';
+    }
+}
+
+checkHealth();
+
+
+async function sendText() {
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    addMessage(text, 'user');
+
+    input.value = '';
+    sendBtn.disabled = true;
+    typing.style.display = 'block';
+
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: text
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.response) {
+            addMessage(data.response, 'bot');
+        } else {
+            addMessage('Не удалось получить ответ.', 'bot');
+        }
+
+    } catch (error) {
+        console.error(error);
+        addMessage('Ошибка соединения с сервером.', 'bot');
+
+    } finally {
+        typing.style.display = 'none';
+        sendBtn.disabled = false;
+        input.focus();
+    }
+}
+
+
+sendBtn.addEventListener('click', sendText);
+
+input.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+        sendText();
+    }
+});
+
+
+function getWsUrl() {
+    const protocol =
+        window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    return `${protocol}//${window.location.host}/ws`;
+}
+
+
+function connectWebSocket() {
+    return new Promise((resolve, reject) => {
+
+        if (
+            websocket &&
+            websocket.readyState === WebSocket.OPEN
+        ) {
+            resolve();
+            return;
+        }
+
+        websocket = new WebSocket(getWsUrl());
+
+        websocket.onopen = () => {
+            statusText.textContent = 'Онлайн';
+            resolve();
+        };
+
+        websocket.onerror = error => {
+            statusText.textContent = 'Ошибка голоса';
+            reject(error);
+        };
+
+        websocket.onclose = () => {
+            websocket = null;
+
+            if (isRecording) {
+                stopRecording();
+            }
+        };
+
+        websocket.onmessage = async event => {
+            const data = JSON.parse(event.data);
+
+            if (
+                data.type === 'transcript' ||
+                data.type === 'transcription'
+            ) {
+                addMessage(data.text, 'user');
+            }
+
+            if (data.type === 'response') {
+                addMessage(data.text, 'bot');
+            }
+
+            if (data.type === 'audio') {
+                playPCM(data.data);
+            }
+
+            if (data.type === 'user_speech_started') {
+                stopAudioPlayback();
+            }
+
+            if (data.type === 'error') {
+                addMessage(data.message || 'Ошибка голосового режима', 'bot');
+            }
+        };
+    });
+}
+
+
+function getAudioContext() {
+    if (!audioContext) {
+        audioContext = new AudioContext({
+            sampleRate: 44100
+        });
+    }
+
+    return audioContext;
+}
+
+
+function bytesToBase64(bytes) {
+    let binary = '';
+
+    const chunk = 0x8000;
+
+    for (let i = 0; i < bytes.length; i += chunk) {
+        const slice = bytes.subarray(i, i + chunk);
+
+        binary += String.fromCharCode.apply(null, slice);
+    }
+
+    return btoa(binary);
+}
+
+
+async function startRecording() {
+    try {
+
+        await connectWebSocket();
+
+        const ctx = getAudioContext();
+
+        if (ctx.state === 'suspended') {
+            await ctx.resume();
+        }
+
+        await ctx.audioWorklet.addModule(
+            '/static/worklet-processor.js'
+        );
+
+        mediaStream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
+            });
+
+        workletNode =
+            new AudioWorkletNode(
+                ctx,
+                'websocket-audio-processor'
+            );
+
+        mediaSource =
+            ctx.createMediaStreamSource(mediaStream);
+
+        silentGain = ctx.createGain();
+        silentGain.gain.value = 0;
+
+        mediaSource.connect(workletNode);
+
+        workletNode
+            .connect(silentGain)
+            .connect(ctx.destination);
+
+        workletNode.port.onmessage = event => {
+
+            if (
+                !websocket ||
+                websocket.readyState !== WebSocket.OPEN
+            ) {
+                return;
+            }
+
+            const bytes =
+                new Uint8Array(event.data.buffer);
+
+            websocket.send(JSON.stringify({
+                type: 'audio',
+                data: bytesToBase64(bytes)
+            }));
+        };
+
+        isRecording = true;
+
+        micBtn.classList.add('recording');
+        micBtn.textContent = '■';
+
+        voiceState.classList.add('active');
+
+    } catch (error) {
+
+        console.error('Microphone error:', error);
+
+        addMessage(
+            'Не удалось включить микрофон. Проверьте разрешение браузера.',
+            'bot'
+        );
+    }
+}
+
+
+function stopRecording() {
+
+    if (mediaStream) {
+        mediaStream
+            .getTracks()
+            .forEach(track => track.stop());
+    }
+
+    if (mediaSource) {
+        try {
+            mediaSource.disconnect();
+        } catch {}
+    }
+
+    if (workletNode) {
+        try {
+            workletNode.disconnect();
+            workletNode.port.close();
+        } catch {}
+    }
+
+    if (silentGain) {
+        try {
+            silentGain.disconnect();
+        } catch {}
+    }
+
+    mediaStream = null;
+    mediaSource = null;
+    workletNode = null;
+    silentGain = null;
+
+    isRecording = false;
+
+    micBtn.classList.remove('recording');
+    micBtn.textContent = '🎙';
+
+    voiceState.classList.remove('active');
+}
+
+
+micBtn.addEventListener('click', async () => {
+
+    if (isRecording) {
+        stopRecording();
+    } else {
+        await startRecording();
+    }
+});
+
+
+function playPCM(base64Audio) {
+
+    const binary = atob(base64Audio);
+
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+
+    const view = new DataView(bytes.buffer);
+
+    const samples =
+        new Float32Array(bytes.length / 2);
+
+    for (let i = 0; i < samples.length; i++) {
+
+        const sample =
+            view.getInt16(i * 2, true);
+
+        samples[i] = sample / 32768;
+    }
+
+    const ctx = getAudioContext();
+
+    const buffer =
+        ctx.createBuffer(
+            1,
+            samples.length,
+            44100
+        );
+
+    buffer.copyToChannel(samples, 0);
+
+    const source = ctx.createBufferSource();
+
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+
+    if (nextPlayTime < now) {
+        nextPlayTime = now;
+    }
+
+    source.start(nextPlayTime);
+
+    nextPlayTime += buffer.duration;
+
+    activeAudioSources.add(source);
+
+    source.onended = () => {
+        activeAudioSources.delete(source);
+    };
+}
+
+
+function stopAudioPlayback() {
+
+    activeAudioSources.forEach(source => {
+        try {
+            source.stop();
+        } catch {}
+    });
+
+    activeAudioSources.clear();
+
+    if (audioContext) {
+        nextPlayTime = audioContext.currentTime;
+    }
+}
+
+
+document
+    .getElementById('closeBtn')
+    .addEventListener('click', () => {
+
+        stopRecording();
+        stopAudioPlayback();
+
+        window.parent.postMessage(
+            { type: 'omniagent-close' },
+            '*'
+        );
+    });
+
+
+window.addEventListener('message', event => {
+
+    if (
+        event.data &&
+        event.data.type === 'omniagent-hide'
+    ) {
+        stopRecording();
+        stopAudioPlayback();
+    }
+});
+</script>
+
+</body>
+</html>
