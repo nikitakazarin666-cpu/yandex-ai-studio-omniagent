@@ -37,6 +37,7 @@ def log(*args):
 # Модели данных
 class ChatMessage(BaseModel):
     message: str
+    capability_id: Optional[str] = None
 
 class ChatResponse(BaseModel):
     response: str
@@ -139,7 +140,10 @@ async def chat_endpoint(message: ChatMessage):
         
         # Генерируем ответ
         # bot_response = generate_bot_response(message.message)
-        bot_response = agent.send(message.message)
+        bot_response = agent.send(
+            message.message,
+            capability_id=message.capability_id
+        )
         
         
         return ChatResponse(response=bot_response)

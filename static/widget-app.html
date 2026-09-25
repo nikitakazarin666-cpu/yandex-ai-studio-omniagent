@@ -384,6 +384,7 @@ const capabilities = document.getElementById('capabilities');
 
 let websocket = null;
 let isRecording = false;
+let activeCapabilityId = null;
 
 let audioContext = null;
 let workletNode = null;
@@ -443,6 +444,8 @@ function renderCapabilities(items) {
         }
 
         button.addEventListener('click', () => {
+            activeCapabilityId = item.id || null;
+
             const message = (item.message || '').trim();
 
             if (!message) {
@@ -534,7 +537,8 @@ async function sendText() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                message: text
+                message: text,
+                capability_id: activeCapabilityId
             })
         });
 
