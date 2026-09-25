@@ -4,8 +4,11 @@
 
     window.__omniagentWidgetLoaded = true;
 
+    const currentScript =
+        document.currentScript;
+
     const BASE_URL =
-        'https://agent.yandexmaps-prodvizhenie.ru';
+        new URL(currentScript.src).origin;
 
     const AGENT_URL =
         BASE_URL + '/static/widget-app.html';
