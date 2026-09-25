@@ -12,6 +12,7 @@ import os
 
 from text_agent import TextAgent
 from vo_agent import RealTimeAgent
+from config_loader import load_agent_config
 
 app = FastAPI(title="Chat Support Bot API")
 
@@ -62,6 +63,31 @@ async def root():
             "websocket": "/ws"
         }
     }
+
+
+@app.get("/widget-config")
+async def widget_config():
+    config = load_agent_config()
+    brand = config.get("brand", {})
+    voice = config.get("voice", {})
+
+    return {
+        "name": config.get("name", "AI-ассистент"),
+        "company": config.get("company", ""),
+        "greeting": config.get(
+            "greeting",
+            "Здравствуйте! Чем могу помочь?"
+        ),
+        "primary_color": brand.get(
+            "primary_color",
+            "#2161f5"
+        ),
+        "voice_enabled": voice.get(
+            "enabled",
+            True
+        )
+    }
+
 
 @app.get("/health")
 async def health_check():
