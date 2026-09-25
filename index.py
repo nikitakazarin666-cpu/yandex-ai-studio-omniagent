@@ -87,6 +87,16 @@ async def widget_config():
             "enabled",
             True
         ),
+        "capabilities": [
+            {
+                "id": item.get("id", ""),
+                "title": item.get("title", ""),
+                "description": item.get("description", ""),
+                "message": item.get("message", "")
+            }
+            for item in config.get("capabilities", [])
+            if item.get("enabled", True)
+        ],
         "launcher": {
             "icon": launcher.get("icon", "✦"),
             "label": launcher.get(

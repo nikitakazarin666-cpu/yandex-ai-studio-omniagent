@@ -256,6 +256,56 @@ button:disabled {
         max-width: 88%;
     }
 }
+
+.capabilities {
+    display: grid;
+    gap: 8px;
+    margin: 4px 0 14px 44px;
+    max-width: 310px;
+}
+
+.capability {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid rgba(20, 40, 80, .10);
+    border-radius: 14px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: .18s ease;
+    box-shadow: 0 4px 16px rgba(25, 45, 80, .05);
+}
+
+.capability:hover {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(25, 45, 80, .09);
+}
+
+.capability-title {
+    display: block;
+    color: var(--primary);
+    font-size: 13px;
+    line-height: 1.3;
+    font-weight: 700;
+}
+
+.capability-description {
+    display: block;
+    margin-top: 3px;
+    color: #778091;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+@media (max-width: 480px) {
+    .capabilities {
+        margin-left: 0;
+        max-width: none;
+    }
+}
+
 </style>
 </head>
 
@@ -285,6 +335,8 @@ button:disabled {
                 Здравствуйте! Я AI-ассистент. Чем могу помочь?
             </div>
         </div>
+
+        <div class="capabilities" id="capabilities"></div>
     </main>
 
     <div class="typing" id="typing">
@@ -328,6 +380,7 @@ const typing = document.getElementById('typing');
 const voiceState = document.getElementById('voiceState');
 const agentName = document.getElementById('agentName');
 const greetingText = document.getElementById('greetingText');
+const capabilities = document.getElementById('capabilities');
 
 let websocket = null;
 let isRecording = false;
@@ -360,6 +413,53 @@ function addMessage(text, sender) {
 
 
 
+
+function renderCapabilities(items) {
+    capabilities.innerHTML = '';
+
+    if (!Array.isArray(items) || items.length === 0) {
+        capabilities.style.display = 'none';
+        return;
+    }
+
+    capabilities.style.display = 'grid';
+
+    items.forEach(item => {
+        const button = document.createElement('button');
+        button.className = 'capability';
+        button.type = 'button';
+
+        const title = document.createElement('span');
+        title.className = 'capability-title';
+        title.textContent = item.title || '';
+
+        button.appendChild(title);
+
+        if (item.description) {
+            const description = document.createElement('span');
+            description.className = 'capability-description';
+            description.textContent = item.description;
+            button.appendChild(description);
+        }
+
+        button.addEventListener('click', () => {
+            const message = (item.message || '').trim();
+
+            if (!message) {
+                input.focus();
+                return;
+            }
+
+            capabilities.style.display = 'none';
+            input.value = message;
+            sendText();
+        });
+
+        capabilities.appendChild(button);
+    });
+}
+
+
 async function loadWidgetConfig() {
     try {
         const response = await fetch('/widget-config');
@@ -376,6 +476,10 @@ async function loadWidgetConfig() {
         greetingText.textContent =
             config.greeting ||
             'Здравствуйте! Чем могу помочь?';
+
+        renderCapabilities(
+            config.capabilities || []
+        );
 
         document.documentElement.style.setProperty(
             '--primary',

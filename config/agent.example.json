@@ -23,5 +23,35 @@
     "show_label": true,
     "position": "right",
     "size": 60
-  }
+  },
+  "capabilities": [
+    {
+      "id": "find_product",
+      "title": "Найти товар",
+      "description": "Найду подходящие варианты на Яндекс Маркете",
+      "message": "Помоги мне найти товар",
+      "enabled": true
+    },
+    {
+      "id": "recommend_product",
+      "title": "Подобрать товар под задачу",
+      "description": "Задам несколько вопросов и помогу определиться",
+      "message": "Помоги подобрать товар под мою задачу",
+      "enabled": true
+    },
+    {
+      "id": "compare_products",
+      "title": "Сравнить товары",
+      "description": "Помогу разобраться в отличиях нескольких вариантов",
+      "message": "Я хочу сравнить несколько товаров",
+      "enabled": true
+    },
+    {
+      "id": "ask_question",
+      "title": "Задать вопрос",
+      "description": "Напишите свой вопрос в свободной форме",
+      "message": "",
+      "enabled": true
+    }
+  ]
 }
