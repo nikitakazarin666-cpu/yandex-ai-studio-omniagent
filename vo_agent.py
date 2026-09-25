@@ -2,6 +2,8 @@ import json
 import asyncio
 import aiohttp
 
+from config_loader import load_agent_config
+
 
 VOICE = "dasha"
 MODEL_NAME = "speech-realtime-260528"
@@ -18,6 +20,9 @@ class RealTimeAgent:
     def __init__(self, api_key, folder_id):
         self.api_key = api_key
         self.folder_id = folder_id
+
+        self.config = load_agent_config()
+        self.voice_config = self.config.get("voice", {})
 
         self.running = True
         self.ws = None
@@ -50,10 +55,9 @@ class RealTimeAgent:
             "session": {
                 "type": "realtime",
 
-                "instructions": (
-                    "Ты голосовой ассистент интернет-магазина Яндекс Маркет. "
-                    "Помогай пользователю подбирать товары и отвечать на вопросы. "
-                    "Отвечай кратко, понятно и по делу."
+                "instructions": self.voice_config.get(
+                    "system_prompt",
+                    "Ты полезный голосовой AI-ассистент."
                 ),
 
                 "output_modalities": [
@@ -84,7 +88,7 @@ class RealTimeAgent:
                             "rate": OUT_RATE
                         },
 
-                        "voice": VOICE
+                        "voice": self.voice_config.get("voice", "dasha")
                     }
                 }
             }
